@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const letters = "abcdefghijklmnopqrstuvwxyz";
 const numbers = "0123456789";
@@ -21,19 +21,24 @@ function validateDescription(val) {
 }
 
 function SignupForm() {
-  const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [specialization, setSpecialization] = useState("");
-  const [experience, setExperience] = useState("");
   const [description, setDescription] = useState("");
 
   const [usernameValid, setUsernameValid] = useState(null);
   const [passwordValid, setPasswordValid] = useState(null);
   const [descriptionValid, setDescriptionValid] = useState(null);
 
+  const fullNameRef = useRef();
+  const specializationRef = useRef();
+  const experienceRef = useRef();
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const fullName = fullNameRef.current.value;
+    const specialization = specializationRef.current.value;
+    const experience = experienceRef.current.value;
 
     if (
       !fullName ||
@@ -69,12 +74,7 @@ function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Nome completo"
-        value={fullName}
-        onChange={(e) => setFullName(e.target.value)}
-      />
+      <input type="text" placeholder="Nome completo" ref={fullNameRef} />
       <input
         type="text"
         placeholder="Username"
@@ -107,10 +107,7 @@ function SignupForm() {
             : "Minimo 8 caratteri con almeno 1 lettera, 1 numero, 1 simbolo."}
         </p>
       )}
-      <select
-        value={specialization}
-        onChange={(e) => setSpecialization(e.target.value)}
-      >
+      <select defaultValue="" ref={specializationRef}>
         <option value="">Seleziona specializzazione</option>
         <option value="Full Stack">Full Stack</option>
         <option value="Frontend">Frontend</option>
@@ -119,8 +116,7 @@ function SignupForm() {
       <input
         type="number"
         placeholder="Anni di esperienza"
-        value={experience}
-        onChange={(e) => setExperience(e.target.value)}
+        ref={experienceRef}
       />
       <textarea
         placeholder="Descrizione"
