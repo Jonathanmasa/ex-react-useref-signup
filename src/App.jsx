@@ -1,7 +1,26 @@
 import { useState } from "react";
 
+const letters = "abcdefghijklmnopqrstuvwxyz";
+const numbers = "0123456789";
+const symbols = "!@#$%^&*()-_=+[]{}|;:'\\\",.<>?/`~";
+
+function validateUsername(val) {
+  return /^[a-zA-Z0-9]{6,}$/.test(val);
+}
+
+function validatePassword(val) {
+  const hasLetter = [...val].some((ch) => letters.includes(ch.toLowerCase()));
+  const hasNumber = [...val].some((ch) => numbers.includes(ch));
+  const hasSymbol = [...val].some((ch) => symbols.includes(ch));
+  return val.length >= 8 && hasLetter && hasNumber && hasSymbol;
+}
+
+function validateDescription(val) {
+  const trimmed = val.trim();
+  return trimmed.length >= 100 && trimmed.length <= 1000;
+}
+
 function SignupForm() {
-  // Creo gli state per ogni campo del form, così li posso controllare direttamente
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -9,11 +28,13 @@ function SignupForm() {
   const [experience, setExperience] = useState("");
   const [description, setDescription] = useState("");
 
-  // Quando l'utente invia il form
+  const [usernameValid, setUsernameValid] = useState(null);
+  const [passwordValid, setPasswordValid] = useState(null);
+  const [descriptionValid, setDescriptionValid] = useState(null);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Controllo che tutti i campi siano compilati
     if (
       !fullName ||
       !username ||
@@ -26,13 +47,16 @@ function SignupForm() {
       return;
     }
 
-    // Controllo che gli anni di esperienza siano un numero positivo
     if (isNaN(experience) || Number(experience) <= 0) {
       alert("Anni di esperienza deve essere un numero positivo.");
       return;
     }
 
-    // Se è tutto ok, stampo i dati in console
+    if (!usernameValid || !passwordValid || !descriptionValid) {
+      alert("Correggi gli errori nei campi prima di inviare.");
+      return;
+    }
+
     console.log("Dati inviati:", {
       fullName,
       username,
@@ -55,14 +79,34 @@ function SignupForm() {
         type="text"
         placeholder="Username"
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(e) => {
+          setUsername(e.target.value);
+          setUsernameValid(validateUsername(e.target.value));
+        }}
       />
+      {username && (
+        <p style={{ color: usernameValid ? "green" : "red" }}>
+          {usernameValid
+            ? "Username valido"
+            : "Minimo 6 caratteri alfanumerici, senza spazi."}
+        </p>
+      )}
       <input
         type="password"
         placeholder="Password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) => {
+          setPassword(e.target.value);
+          setPasswordValid(validatePassword(e.target.value));
+        }}
       />
+      {password && (
+        <p style={{ color: passwordValid ? "green" : "red" }}>
+          {passwordValid
+            ? "Password valida"
+            : "Minimo 8 caratteri con almeno 1 lettera, 1 numero, 1 simbolo."}
+        </p>
+      )}
       <select
         value={specialization}
         onChange={(e) => setSpecialization(e.target.value)}
@@ -81,13 +125,21 @@ function SignupForm() {
       <textarea
         placeholder="Descrizione"
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={(e) => {
+          setDescription(e.target.value);
+          setDescriptionValid(validateDescription(e.target.value));
+        }}
       />
+      {description && (
+        <p style={{ color: descriptionValid ? "green" : "red" }}>
+          {descriptionValid
+            ? "Descrizione valida"
+            : "Deve essere tra 100 e 1000 caratteri."}
+        </p>
+      )}
       <button type="submit">Registrati</button>
     </form>
   );
 }
 
 export default SignupForm;
-
-
